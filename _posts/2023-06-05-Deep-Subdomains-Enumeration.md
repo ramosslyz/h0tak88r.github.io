@@ -21,7 +21,7 @@ pin: true
 
 **From the This image you can get the idea of  horizontal/Vrtical domain correlation:**
 
-![Untitled](https://h0tak88r.github.io\assets\Deep-Subdomains-Enumeration-Methodology 4b5c3da2008f4bd8b482a401314a0dcd/Untitled.png)
+![image](https://github.com/h0tak88r/h0tak88r.github.io/assets/108616378/66dae1c9-af03-48e9-8bab-df516c70cb21)
 
 # **Horizontal Enumeration**
 
@@ -61,7 +61,7 @@ Since we already know the IP space of an organization we can, we can **reverse q
 
 > **What is a favicon?**  The image/icon shown on the left-hand side of a tab is called as **favicon.ico**
  
-![Untitled](https://h0tak88r.github.io\assets\Deep-Subdomains-Enumeration-Methodology 4b5c3da2008f4bd8b482a401314a0dcd/Untitled%201.png)
+![image](https://github.com/h0tak88r/h0tak88r.github.io/assets/108616378/47062d80-9cb4-4a37-a556-623af8c722c6)
 
 1. View source of the websitepage
 2. Search for favicon.ico
