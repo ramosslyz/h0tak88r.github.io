@@ -1,5 +1,5 @@
 ---
-title: Deep-Subdomains-Enumeration
+title: Deep-Subdomains-Enumeration-Methodology
 author: h0tak88r
 date: 2023-06-05
 categories: [Recon]
@@ -9,17 +9,17 @@ pin: true
 
 ## What's the need?
 
-- A good subdomain enumeration will help you find those hidden/untouched subdomains, resulting lesser people finding bugs on that particular domain. Hence lesser **duplicates**.
-- Finding applications running on hidden, forgotten(by the organization) sub-domains may lead to uncovering critical vulnerabilities.
-- For large organizations, to find what services have they exposed to the internet while performing an internal pentest.
+- A good subdomain enumeration will help you find those hidden/untouched subdomains, resulting lesser people finding bugs on that particular domain. Hence, fewer **duplicates**.
+- Finding applications running on hidden, forgotten (by the organization) sub-domains may lead to uncovering critical vulnerabilities.
+- For large organizations, to find what services they have exposed to the internet while performing an internal pentest.
 - The methodology of collecting subdomains from tools like `amass`, `subfinder`, `findomain` and directly sending them to httpx/httprobe is **absolutely wrong**. Instead, you should first DNS resolve them using tools like [puredns](https://github.com/d3mondev/puredns) or [shuffledns](https://github.com/projectdiscovery/shuffledns).
 
 <aside>
-💡 There are many tools that you may think it is better than the mentioned ones  in some techniques, In this methodology I focus on the Techniques Themselves, You can go ahead and try your preferred Tools
+💡 There are many tools that you may think are better than the ones mentioned in some techniques, In this methodology I focus on the techniquess part You can go ahead and try your preferred Tools
 
 </aside>
 
-**From the This image you can get the idea of  horizontal/Vrtical domain correlation:**
+**From this image, you can get the idea of horizontal/vertical domain correlation:**
 
 ![image](https://github.com/h0tak88r/h0tak88r.github.io/assets/108616378/66dae1c9-af03-48e9-8bab-df516c70cb21)
 
@@ -63,7 +63,7 @@ Since we already know the IP space of an organization we can, we can **reverse q
  
 ![image](https://github.com/h0tak88r/h0tak88r.github.io/assets/108616378/47062d80-9cb4-4a37-a556-623af8c722c6)
 
-1. View source of the websitepage
+1. View source of the website page
 2. Search for favicon.ico
 3. download it from the link you got from source code 
 4. Calculate the hash using python3
@@ -95,13 +95,18 @@ Use https://github.com/devanshbatham/FavFreak
 cat urls.txt | python3 favfreak.py -o output
 http.favicon.hash:-<hash>
 ```
+### Finding related domains/acquisitions
+
+- Ask **CHATGPT**
+- Search on Google ,wikibedia ro any other sources
+- Visit https://tools.whoisxmlapi.com/reverse-whois-search
 
 # **Vertical Enumeration**
 
 ## Passive Enum
 
-> Here you got alot of tools that do the job but it is not about the tools you use it is about the technoque or the way you do it .You Must use the tool with all of api’s you can get
-> 
+> Here you have a lot of tools that do the job, but it is not about the tools; it is about the technique or the way you do it. You must use the tool with all of the APIs you can get.
+>
 
 Personally I prefer `subfinder` 
 
@@ -123,7 +128,7 @@ Here is a list of free-api websites
 - There are in total around **[90 passive DNS sources/services](https://gist.github.com/sidxparab/22c54fd0b64492b6ae3224db8c706228)** that provide such datasets to query them
 - You can use another tool that use free services and apis to do subdomain enumeration [https://github.com/sl4x0/subfree](https://github.com/sl4x0/subfree)
 - [https://dnsdumpster.com/](https://dnsdumpster.com/)   → FREE domain research tool that can discover hosts related to a domain. Finding visible hosts from the attackers perspective is an important part of the security assessment process.
-- [https://chaos.projectdiscovery.io/#/](https://chaos.projectdiscovery.io/#/) → → it is like database or somthng here u can get all subdomains for public bug bounty programs , Yeah it is useless when you work in a private ones
+- https://chaos.projectdiscovery.io/#/→  it is like database or something here u can get all subdomains for public bug bounty programs , Yeah it is useless when you work in a private ones
 
 ### Another Ways (I don’t use )
 
@@ -165,54 +170,92 @@ done
 
 ## Active Enum
 
-- [ ]  **DNS Brute Forcing**
+### **DNS Brute Forcing**
+
+**What is DNS bruteforcing?**
+
+- We try to identify all possible subdomains using a very large word list.
+- By applying brute force to the domain or hostname, we get a very big list of subdomains that contains all possible subdomains from the wordlist + subdomain.
+- We pass this list to a tool that does DNS resolution and save the valid subdomains.
+
+**Tool**
+
+- **[Puredns](https://github.com/d3mondev/puredns)** outperforms the work of DNS bruteforcing & resolving millions of domains at once. There exists various open-source tools, but puredns is the best in terms of speed & accuracy of the results produced.
+
+**Workflow** 
+
+1. Sanitize the input wordlist
+2. Mass resolve using the public resolvers
+3. Wildcard detection
+4. Validating results with trusted resolvers
     
-    ```bash
-    #Prerequisites
-    git clone https://github.com/blechschmidt/massdns.git
-    cd massdns
-    make
-    sudo make install
-    
-    #Installing the tool
-    go install github.com/d3mondev/puredns/v2@latest
-    
-    # Download Resolvers List
-    wget https://github.com/trickest/resolvers/blob/main/resolvers-trusted.txt
-    wget https://public-dns.info/nameservers.txt
-    # Download dns wordlist  
-    wget https://wordlists-cdn.assetnote.io/data/manual/best-dns-wordlist.txt
-    
-    # Brute Forcing
-    puredns bruteforce dns_bf_wordlist.txt example.com -r resolvers.txt -w dns_bf.txt
-    or
-    amass enum -brute wordlist.txt -d target.com -o dns_bf.txt
-    or
-    shuffledns -d target.com -list wordlist.txt -r resolvers.txt -o dns_bf.txt
-    ```
-    
-- [ ]  **Permutations**
+    > The DNS resolution process uses "**[Trusted DNS resolvers](https://raw.githubusercontent.com/six2dez/resolvers_reconftw/main/resolvers_trusted.txt)**" inorder to verify the results for the final time. This double resolution process helps in discarding those false-positive results. The main advantage of using Trusted DNS resolvers like Google DNS (`8.8.8.8` , `8.8.4.4`), Cloudflare(`1.1.1.1`) is to avoid DNS poisoned responses or other discrepancies that normal resolvers cause.
+    >
+
+```bash
+#Prerequisites
+git clone https://github.com/blechschmidt/massdns.git
+cd massdns
+make
+sudo make install
+
+#Installing the tool
+go install github.com/d3mondev/puredns/v2@latest
+
+# Download Resolvers List
+wget https://raw.githubusercontent.com/trickest/resolvers/main/resolvers-trusted.txt
+
+# You even can make yours
+git clone https://github.com/vortexau/dnsvalidator.git
+cd dnsvalidator/
+pip3 install -r requirements.txt
+pip3  install setuptools==58.2.0
+python3 setup.py install
+dnsvalidator -tL https://public-dns.info/nameservers.txt -threads 100 -o resolvers.txt
+
+# Download dns wordlist  
+wget https://wordlists-cdn.assetnote.io/data/manual/best-dns-wordlist.txt 
+
+# Brute Forcing
+puredns bruteforce best-dns-wordlist.txt example.com -r resolvers.txt -w dns_bf.txt
+```
+
+### **Permutations**
+
+**Workflow:**
+
+- First, we need to make a combined list of all the subdomains(valid/invalid) we collected from all the above steps whose permutations we will create.
+- To generate combinations you need to provide a small wordlist that contains common domain names like admin, demo, backup, api, ftp, email, etc.
+- [This](https://gist.githubusercontent.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw) is a good wordlist of 1K permutation words that we will need.
 
 1. generate various combinations or permutations of a root domain
-2. DNS resolve them and check if we get any valid subdomains    
-    ```bash
-    # Permutation words Wordlist
-    wget https://gist.githubusercontent.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw
-    # Run 
-    gotator -sub subdomains.txt -perm dns_permutations_list.txt -depth 1 -numbers 10 -mindup -adv -md | sort -u > perms.txt
-    # DNS resolve them and check for valid ones.
-    puredns resolve permutations.txt -r resolvers.txt > resolved_perms
-    ```
+2. DNS resolve them and check if we get any valid subdomains
+
+```python
+# Permutation words Wordlist
+wget https://gist.githubusercontent.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw
+# Run 
+gotator -sub subdomains.txt -perm dns_permutations_list.txt -depth 1 -numbers 10 -mindup -adv -md | sort -u > perms.txt
+# DNS resolve them and check for valid ones.
+puredns resolve permutations.txt -r resolvers.txt > resolved_perms
+# Hint: Collect subdomains that is not valid and make compinations then resolve them u may git valid unique subdomains that is hard to find 
+gotator -sub not_vali_subs.txt -perm dns_permutations_list.txt -depth 1 -numbers 10 -mindup -adv -md | sort -u > perms.txt
+```
+
+### **Google analytics**
     
-- [ ]  **Google analytics**
-    
-- Most organizations use Google Analytics to track website visitors and for more statistics. Generally, they have the same Google Analytics ID across all subdomains of a root domain. This means we can perform a reverse search and find all the subdomains having the same ID. Hence, it helps us in the enumeration process.
-    ```bash
-    > git clone https://github.com/Josue87/AnalyticsRelationships.git
-    > cd AnalyticsRelationships/Python
-    > sudo pip3 install -r requirements.txt
-    python3 analyticsrelationships.py -u https://www.example.com
-    ```
+We can perform a reverse search and find all the subdomains having the same Google Analytic ID. Hence, it helps us find acquisitions and unique domains.
+
+> Most organizations use [Google Analytics](https://analytics.google.com/analytics/web/) to track website visitors and for more statistics. Generally, they have the same Google Analytics ID across all subdomains of a root domain
+> 
+
+```bash
+ git clone https://github.com/Josue87/AnalyticsRelationships.git
+ cd AnalyticsRelationships/Python
+ sudo pip3 install -r requirements.txt
+ python3 analyticsrelationships.py -u https://www.example.com
+```
+
     
 - [ ]  **TLS, CSP, CNAME Probing**
 - In order to use HTTPS, the website owner needs to issue an SSL(Secure Socket Layer) certificate.
@@ -227,9 +270,37 @@ done
     # cname
     dnsx -retry 3 -cname -l subdomains.txt
     ```
-    
+### **Scraping(JS/Source code)**
 
-# Finish Work
+**Workflow**
+
+1. Web probing subdomains
+    
+    ```bash
+    cat subdomains.txt | httpx -random-agent -retries 2 -no-color -o probed_tmp_scrap.txt
+    ```
+    
+2. Now, that we have web probed URLs, we can send them for crawling to gospider
+    
+    ```bash
+    gospider -S probed_tmp_scrap.txt --js -t 50 -d 3 --sitemap --robots -w -r > gospider.txt
+    ```
+    
+3. Cleaning the output
+    
+    ```bash
+    sed -i '/^.\{2048\}./d' gospider.txt
+    or 
+    cat gospider.txt | grep -Eo 'https?://[^ ]+' | sed 's/]$//' | unfurl -u domains | grep ".example.com$" | sort -u scrap_subs.txt
+    ```
+    
+4. Resolving our target subdomains
+    
+    ```bash
+    puredns resolve scrap_subs.txt -w scrap_subs_resolved.txt -r resolvers.txt
+    ```    
+
+## Finish Work
 
 ```bash
 cd subs/

@@ -164,6 +164,9 @@ defaults:
     values:
       swcache: true
 
+# destination to the file where the site will be built
+destination: ./docs/
+
 sass:
   style: compressed
 
