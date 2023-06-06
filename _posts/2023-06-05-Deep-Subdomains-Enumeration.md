@@ -25,6 +25,9 @@ pin: true
 
 # **Horizontal Enumeration**
 
+>These enumeration methods can go out of scope and backfire you. Do it with caution!
+>
+
 ### Discovering the IP space
 
 1. First We need to get the **ASN** from websites like [https://bgp.he.net/](https://bgp.he.net/) or you can use any other tool that gets the job done
