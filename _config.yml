@@ -18,10 +18,10 @@ timezone: Africa/Cairo
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: hotak88r # the main title 
-tagline: Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter @bugcrowd # it will display as the sub-title
+title: Mosaad Sallam # the main title 
+tagline: Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter  # it will display as the sub-title
 description: >- # used by seo meta and the atom feed
-  Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter @bugcrowd
+  Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter 
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "h0tak88r.github.com"
