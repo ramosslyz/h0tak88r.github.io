@@ -19,7 +19,7 @@ timezone: Africa/Cairo
 # ↓ --------------------------
 
 title: Mosaad Sallam # the main title 
-tagline: Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter  # it will display as the sub-title
+tagline: Security Researcher | Bug Hunter # it will display as the sub-title
 description: >- # used by seo meta and the atom feed
   Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter 
 

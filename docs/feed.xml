@@ -4,7 +4,7 @@
   <id>http://localhost:4000/</id>
   <title>Mosaad Sallam</title>
   <subtitle>Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter </subtitle>
-  <updated>2023-06-12T11:34:44+03:00</updated>
+  <updated>2023-08-17T02:25:37+03:00</updated>
   <author>
     <name>Mosaad Sallam</name>
     <uri>http://localhost:4000/</uri>
@@ -17,6 +17,45 @@
   <icon>/assets/img/favicons/favicon.ico</icon>
   <logo>/assets/img/favicons/favicon-96x96.png</logo>
 
+
+  
+  <entry>
+    <title>Multi-Factor-Authentication-(2FA)-Security-Testing</title>
+    <link href="http://localhost:4000/posts/Multi-Factor-Authentication-(2FA)-Security-Testing/" rel="alternate" type="text/html" title="Multi-Factor-Authentication-(2FA)-Security-Testing" />
+    <published>2023-08-17T00:00:00+03:00</published>
+  
+    <updated>2023-08-17T00:00:00+03:00</updated>
+  
+    <id>http://localhost:4000/posts/Multi-Factor-Authentication-(2FA)-Security-Testing/</id>
+    <content src="http://localhost:4000/posts/Multi-Factor-Authentication-(2FA)-Security-Testing/" />
+    <author>
+      <name>h0tak88r</name>
+    </author>
+
+  
+    
+    <category term="Multi-Factor-Authentication" />
+    
+  
+
+  
+    <summary>
+      
+
+
+
+
+
+      Introduction
+Greetings, fellow security enthusiasts!
+
+Imagine a lock that requires not just one, but two secret keys to open. That’s Multi-Factor Authentication (2FA) in a nutshell – an extra layer of defense that’s become a game-changer in keeping digital front doors locked against cyber intruders.
+
+In this guide, we’re diving into the world of 2FA security. Think of it as a treasure map that ...
+    </summary>
+  
+
+  </entry>
 
   
   <entry>

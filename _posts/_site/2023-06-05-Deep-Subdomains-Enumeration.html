@@ -1,0 +1,354 @@
+<h2 id="whats-the-need">What’s the need?</h2>
+
+<ul>
+  <li>A good subdomain enumeration will help you find those hidden/untouched subdomains, resulting lesser people finding bugs on that particular domain. Hence, fewer <strong>duplicates</strong>.</li>
+  <li>Finding applications running on hidden, forgotten (by the organization) sub-domains may lead to uncovering critical vulnerabilities.</li>
+  <li>For large organizations, to find what services they have exposed to the internet while performing an internal pentest.</li>
+  <li>The methodology of collecting subdomains from tools like <code class="language-plaintext highlighter-rouge">amass</code>, <code class="language-plaintext highlighter-rouge">subfinder</code>, <code class="language-plaintext highlighter-rouge">findomain</code> and directly sending them to httpx/httprobe is <strong>absolutely wrong</strong>. Instead, you should first DNS resolve them using tools like <a href="https://github.com/d3mondev/puredns">puredns</a> or <a href="https://github.com/projectdiscovery/shuffledns">shuffledns</a>.</li>
+</ul>
+
+<aside>
+💡 There are many tools that you may think are better than the ones mentioned in some techniques, In this methodology I focus on the techniquess part You can go ahead and try your preferred Tools
+
+</aside>
+
+<p><strong>From this image, you can get the idea of horizontal/vertical domain correlation:</strong></p>
+
+<p><img src="https://github.com/h0tak88r/h0tak88r.github.io/assets/108616378/66dae1c9-af03-48e9-8bab-df516c70cb21" alt="image" /></p>
+
+<h1 id="horizontal-enumeration"><strong>Horizontal Enumeration</strong></h1>
+
+<blockquote>
+  <p>These enumeration methods can go out of scope and backfire you. Do it with caution!</p>
+
+</blockquote>
+
+<h3 id="discovering-the-ip-space">Discovering the IP space</h3>
+
+<ol>
+  <li>First We need to get the <strong>ASN</strong> from websites like <a href="https://bgp.he.net/">https://bgp.he.net/</a> or you can use any other tool that gets the job done</li>
+</ol>
+
+<blockquote>
+  <p><strong>ASN</strong>(Autonomous System Number) is a unique identifier for a set of IP-ranges an organizations owns. Very large organizations such as Apple, GitHub, Tesla have their own significant IP space.</p>
+
+</blockquote>
+
+<ol>
+  <li>find out the IP ranges that reside inside that ASN. For this, we will use a tool called <strong>whois.</strong></li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> apt-get <span class="nb">install </span>whois
+ whois <span class="nt">-h</span> whois.radb.net  <span class="nt">--</span> <span class="s1">'-i origin AS8983'</span> | <span class="nb">grep</span> <span class="nt">-Eo</span> <span class="s2">"([0-9.]+){4}/[0-9]+"</span> | <span class="nb">uniq</span> <span class="nt">-u</span> <span class="o">&gt;</span> ip_ranges.txt
+</code></pre></div></div>
+
+<h3 id="ptr-records-reverse-dns">PTR records (Reverse DNS)</h3>
+
+<p>Since we already know the IP space of an organization we can, we can <strong>reverse query</strong> the IP addresses and find the valid domains</p>
+
+<p><strong>DNS PTR records (pointer record)</strong> helps us to achieve this. We can query a <strong>PTR record</strong> of an IP address and find the associated <strong>hostname/domain name</strong>.</p>
+
+<ol>
+  <li>
+    <p>Chain the tools <strong><a href="https://github.com/projectdiscovery/mapcidr">Mapcidr</a> - <a href="https://github.com/projectdiscovery/dnsx">Dnsx</a></strong> together in one liner</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nb">cat </span>ip_anges.txt | mapcidr <span class="nt">-silent</span> | dnsx <span class="nt">-ptr</span> <span class="nt">-resp-only</span> <span class="nt">-o</span> ptr_recrds.txt
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<blockquote>
+  <p>When an IP range is given to <code class="language-plaintext highlighter-rouge">mapcidr</code> through stdin(standard input), it performs <strong>expansion of the CIDR range</strong>, spitting out each <strong>IP address</strong> from the range onto a new line. Now when <strong><code class="language-plaintext highlighter-rouge">dnsx</code></strong> receives each IP address from stdin, it performs <strong>reverse DNS</strong> and checks for <strong>PTR record</strong>. If, found it gives us back the <strong>hostname/domain name</strong>.</p>
+
+</blockquote>
+
+<h3 id="favicon-search"><strong>Favicon Search</strong></h3>
+
+<blockquote>
+  <p><strong>What is a favicon?</strong>  The image/icon shown on the left-hand side of a tab is called as <strong>favicon.ico</strong></p>
+</blockquote>
+
+<p><img src="https://github.com/h0tak88r/h0tak88r.github.io/assets/108616378/47062d80-9cb4-4a37-a556-623af8c722c6" alt="image" /></p>
+
+<ol>
+  <li>View source of the website page</li>
+  <li>Search for favicon.ico</li>
+  <li>download it from the link you got from source code</li>
+  <li>
+    <p>Calculate the hash using python3</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kn">import</span> <span class="n">hashlib</span>
+    
+ <span class="k">def</span> <span class="nf">calculate_favicon_hash</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+     <span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="sh">'</span><span class="s">rb</span><span class="sh">'</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+         <span class="n">favicon_data</span> <span class="o">=</span> <span class="nb">file</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
+         <span class="n">favicon_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="nf">md5</span><span class="p">(</span><span class="n">favicon_data</span><span class="p">).</span><span class="nf">hexdigest</span><span class="p">()</span>
+     <span class="k">return</span> <span class="n">favicon_hash</span>
+    
+ <span class="n">favicon_path</span> <span class="o">=</span> <span class="sh">'</span><span class="s">/path/to/favicon.ico</span><span class="sh">'</span>
+ <span class="n">favicon_hash</span> <span class="o">=</span> <span class="nf">calculate_favicon_hash</span><span class="p">(</span><span class="n">favicon_path</span><span class="p">)</span>
+ <span class="nf">print</span><span class="p">(</span><span class="n">favicon_hash</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Shodan Search <code class="language-plaintext highlighter-rouge">http.favicon.hash:[Favicon hash here]</code></li>
+</ol>
+
+<blockquote>
+  <p><strong>Hint</strong>: Generally the favicon hash of any spring boot application is <code class="language-plaintext highlighter-rouge">116323821</code><strong>.</strong> So we can use this shodan filter <em>**</em><code class="language-plaintext highlighter-rouge">http.favicon.hash:116323821</code>, You can use different favicon hashes for different services.</p>
+
+</blockquote>
+
+<h3 id="automation-">Automation ?</h3>
+
+<p>Use https://github.com/devanshbatham/FavFreak</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>urls.txt | python3 favfreak.py <span class="nt">-o</span> output
+http.favicon.hash:-&lt;<span class="nb">hash</span><span class="o">&gt;</span>
+</code></pre></div></div>
+<h3 id="finding-related-domainsacquisitions">Finding related domains/acquisitions</h3>
+
+<ul>
+  <li>Ask <strong>CHATGPT</strong></li>
+  <li>Search on Google ,wikibedia ro any other sources</li>
+  <li>Visit https://tools.whoisxmlapi.com/reverse-whois-search</li>
+</ul>
+
+<h1 id="vertical-enumeration"><strong>Vertical Enumeration</strong></h1>
+
+<h2 id="passive-enum">Passive Enum</h2>
+
+<blockquote>
+  <p>Here you have a lot of tools that do the job, but it is not about the tools; it is about the technique or the way you do it. You must use the tool with all of the APIs you can get.</p>
+
+</blockquote>
+
+<p>Personally I prefer <code class="language-plaintext highlighter-rouge">subfinder</code></p>
+
+<p><strong>Subfinder</strong> [ <code class="language-plaintext highlighter-rouge">subfinder -d test.com -o passive2.txt -all</code> ]</p>
+
+<p>Here is a list of free-api websites</p>
+
+<ol>
+  <li>censys</li>
+  <li>bevigil</li>
+  <li>binaryedge</li>
+  <li>cerspotter</li>
+  <li>
+    <p>whoisxmlapi</p>
+  </li>
+  <li>fofa</li>
+  <li>shodan</li>
+  <li>github</li>
+  <li>virustotal</li>
+  <li>zoomeye
+    <ul>
+      <li>There are in total around <strong><a href="https://gist.github.com/sidxparab/22c54fd0b64492b6ae3224db8c706228">90 passive DNS sources/services</a></strong> that provide such datasets to query them</li>
+      <li>You can use another tool that use free services and apis to do subdomain enumeration <a href="https://github.com/sl4x0/subfree">https://github.com/sl4x0/subfree</a></li>
+      <li><a href="https://dnsdumpster.com/">https://dnsdumpster.com/</a>   → FREE domain research tool that can discover hosts related to a domain. Finding visible hosts from the attackers perspective is an important part of the security assessment process.</li>
+      <li>https://chaos.projectdiscovery.io/#/→  it is like database or something here u can get all subdomains for public bug bounty programs , Yeah it is useless when you work in a private ones</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="another-ways-i-dont-use-">Another Ways (I don’t use )</h3>
+
+<ul>
+  <li><strong>Internet Archive →</strong> <a href="https://github.com/lc/gau">district →</a> <a href="https://github.com/tomnomnom/waybackurls">waybackurls</a></li>
+  <li><strong>Github Scraping →</strong> <a href="https://github.com/gwen001/github-subdomains">github-subdomains</a></li>
+  <li><strong>GitLab Scraping →</strong> <a href="https://github.com/gwen001/gitlab-subdomains">gitlab-subdomains</a></li>
+</ul>
+
+<h3 id="recursive-enumeration"><strong>Recursive Enumeration</strong></h3>
+
+<ul>
+  <li>In easy words, we again run tools like Amass, Subfinder, Assetfinder again each of the subdomains that were found.</li>
+  <li>If you have set up API keys, this technique may consume your entire querying quota</li>
+  <li>This technique is only useful when your target has a large number of multi-level subdomains<em>(not effective for small &amp; medium scope targets).</em></li>
+  <li>It is a huge use of resources and power and takes time to return the final results so be careful and make this technique the last step of you process if you can :)))</li>
+  <li>Do it exclusively on a validated list of subdomains that you have collected through other <strong>Passive + Active</strong> techniques.</li>
+</ul>
+
+<p><strong>Workflow:</strong></p>
+
+<ol>
+  <li>Read the list of subdomains from the file “subdomains.txt”.</li>
+  <li>Process the subdomains in two steps: <strong>a)</strong>  Find the Top-10 most frequent occuring <strong>Second-Level Domain</strong> names with the help of tools like <code class="language-plaintext highlighter-rouge">cut</code>, <code class="language-plaintext highlighter-rouge">sort</code>, <code class="language-plaintext highlighter-rouge">rev</code>, <code class="language-plaintext highlighter-rouge">uniq</code>  <strong>b)</strong>  Find the Top-10 most frequent occuring <strong>Third-Level domains</strong>.</li>
+  <li>Now run passive subdomain enumeration on these 10 Second-level domain names and 10 Third-level domain names using tools like <strong>amass, subfinder, assetfinder, findomain.</strong></li>
+  <li>Keep appending the results to <code class="language-plaintext highlighter-rouge">passive_recursive.txt</code> file.</li>
+  <li>Now after finding out the a list of domain names, run puredns to DNS resolve them and find the alive subdomains</li>
+</ol>
+
+<h3 id="automation">Automation</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+go <span class="nb">install</span> <span class="nt">-v</span> github.com/tomnomnom/anew@latest
+<span class="nv">subdomain_list</span><span class="o">=</span><span class="s2">"subdomains.txt"</span>
+
+<span class="k">for </span>sub <span class="k">in</span> <span class="si">$(</span> <span class="o">(</span> <span class="nb">cat</span> <span class="nv">$subdomain_list</span> | rev | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">'.'</span> <span class="nt">-f</span> 3,2,1 | rev | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">sort</span> <span class="nt">-nr</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'1 '</span> | <span class="nb">head</span> <span class="nt">-n</span> 10 <span class="o">&amp;&amp;</span> <span class="nb">cat </span>subdomains.txt | rev | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">'.'</span> <span class="nt">-f</span> 4,3,2,1 | rev | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">sort</span> <span class="nt">-nr</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'1 '</span> | <span class="nb">head</span> <span class="nt">-n</span> 10 <span class="o">)</span> | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/^[[:space:]]*//'</span> | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="nt">-f</span> 2<span class="si">)</span><span class="p">;</span><span class="k">do 
+    </span>subfinder <span class="nt">-d</span> <span class="nv">$sub</span> <span class="nt">-silent</span> <span class="nt">-max-time</span> 2 | anew <span class="nt">-q</span> passive_recursive.txt
+    assetfinder <span class="nt">--subs-only</span> <span class="nv">$sub</span> | anew <span class="nt">-q</span> passive_recursive.txt
+    amass enum <span class="nt">-timeout</span> 2 <span class="nt">-passive</span> <span class="nt">-d</span> <span class="nv">$sub</span> | anew <span class="nt">-q</span> passive_recursive.txt
+    findomain <span class="nt">--quiet</span> <span class="nt">-t</span> <span class="nv">$sub</span> | anew <span class="nt">-q</span> passive_recursive.txt
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="active-enum">Active Enum</h2>
+
+<h3 id="dns-brute-forcing"><strong>DNS Brute Forcing</strong></h3>
+
+<p><strong>What is DNS bruteforcing?</strong></p>
+
+<ul>
+  <li>We try to identify all possible subdomains using a very large word list.</li>
+  <li>By applying brute force to the domain or hostname, we get a very big list of subdomains that contains all possible subdomains from the wordlist + subdomain.</li>
+  <li>We pass this list to a tool that does DNS resolution and save the valid subdomains.</li>
+</ul>
+
+<p><strong>Tool</strong></p>
+
+<ul>
+  <li><strong><a href="https://github.com/d3mondev/puredns">Puredns</a></strong> outperforms the work of DNS bruteforcing &amp; resolving millions of domains at once. There exists various open-source tools, but puredns is the best in terms of speed &amp; accuracy of the results produced.</li>
+</ul>
+
+<p><strong>Workflow</strong></p>
+
+<ol>
+  <li>Sanitize the input wordlist</li>
+  <li>Mass resolve using the public resolvers</li>
+  <li>Wildcard detection</li>
+  <li>
+    <p>Validating results with trusted resolvers</p>
+
+    <blockquote>
+      <p>The DNS resolution process uses “<strong><a href="https://raw.githubusercontent.com/six2dez/resolvers_reconftw/main/resolvers_trusted.txt">Trusted DNS resolvers</a></strong>” inorder to verify the results for the final time. This double resolution process helps in discarding those false-positive results. The main advantage of using Trusted DNS resolvers like Google DNS (<code class="language-plaintext highlighter-rouge">8.8.8.8</code> , <code class="language-plaintext highlighter-rouge">8.8.4.4</code>), Cloudflare(<code class="language-plaintext highlighter-rouge">1.1.1.1</code>) is to avoid DNS poisoned responses or other discrepancies that normal resolvers cause.</p>
+
+    </blockquote>
+  </li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#Prerequisites</span>
+git clone https://github.com/blechschmidt/massdns.git
+<span class="nb">cd </span>massdns
+make
+<span class="nb">sudo </span>make <span class="nb">install</span>
+
+<span class="c">#Installing the tool</span>
+go <span class="nb">install </span>github.com/d3mondev/puredns/v2@latest
+
+<span class="c"># Download Resolvers List</span>
+wget https://raw.githubusercontent.com/trickest/resolvers/main/resolvers-trusted.txt
+
+<span class="c"># You even can make yours</span>
+git clone https://github.com/vortexau/dnsvalidator.git
+<span class="nb">cd </span>dnsvalidator/
+pip3 <span class="nb">install</span> <span class="nt">-r</span> requirements.txt
+pip3  <span class="nb">install </span><span class="nv">setuptools</span><span class="o">==</span>58.2.0
+python3 setup.py <span class="nb">install
+</span>dnsvalidator <span class="nt">-tL</span> https://public-dns.info/nameservers.txt <span class="nt">-threads</span> 100 <span class="nt">-o</span> resolvers.txt
+
+<span class="c"># Download dns wordlist  </span>
+wget https://wordlists-cdn.assetnote.io/data/manual/best-dns-wordlist.txt 
+
+<span class="c"># Brute Forcing</span>
+puredns bruteforce best-dns-wordlist.txt example.com <span class="nt">-r</span> resolvers.txt <span class="nt">-w</span> dns_bf.txt
+</code></pre></div></div>
+
+<h3 id="permutations"><strong>Permutations</strong></h3>
+
+<p><strong>Workflow:</strong></p>
+
+<ul>
+  <li>First, we need to make a combined list of all the subdomains(valid/invalid) we collected from all the above steps whose permutations we will create.</li>
+  <li>To generate combinations you need to provide a small wordlist that contains common domain names like admin, demo, backup, api, ftp, email, etc.</li>
+  <li><a href="https://gist.githubusercontent.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw">This</a> is a good wordlist of 1K permutation words that we will need.</li>
+</ul>
+
+<ol>
+  <li>generate various combinations or permutations of a root domain</li>
+  <li>DNS resolve them and check if we get any valid subdomains</li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Permutation words Wordlist
+</span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gist</span><span class="p">.</span><span class="n">githubusercontent</span><span class="p">.</span><span class="n">com</span><span class="o">/</span><span class="n">six2dez</span><span class="o">/</span><span class="n">ffc2b14d283e8f8eff6ac83e20a3c4b4</span><span class="o">/</span><span class="n">raw</span>
+<span class="c1"># Run 
+</span><span class="n">gotator</span> <span class="o">-</span><span class="n">sub</span> <span class="n">subdomains</span><span class="p">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">perm</span> <span class="n">dns_permutations_list</span><span class="p">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">depth</span> <span class="mi">1</span> <span class="o">-</span><span class="n">numbers</span> <span class="mi">10</span> <span class="o">-</span><span class="n">mindup</span> <span class="o">-</span><span class="n">adv</span> <span class="o">-</span><span class="n">md</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">-</span><span class="n">u</span> <span class="o">&gt;</span> <span class="n">perms</span><span class="p">.</span><span class="n">txt</span>
+<span class="c1"># DNS resolve them and check for valid ones.
+</span><span class="n">puredns</span> <span class="n">resolve</span> <span class="n">permutations</span><span class="p">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">r</span> <span class="n">resolvers</span><span class="p">.</span><span class="n">txt</span> <span class="o">&gt;</span> <span class="n">resolved_perms</span>
+<span class="c1"># Hint: Collect subdomains that is not valid and make compinations then resolve them u may git valid unique subdomains that is hard to find 
+</span><span class="n">gotator</span> <span class="o">-</span><span class="n">sub</span> <span class="n">not_vali_subs</span><span class="p">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">perm</span> <span class="n">dns_permutations_list</span><span class="p">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">depth</span> <span class="mi">1</span> <span class="o">-</span><span class="n">numbers</span> <span class="mi">10</span> <span class="o">-</span><span class="n">mindup</span> <span class="o">-</span><span class="n">adv</span> <span class="o">-</span><span class="n">md</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">-</span><span class="n">u</span> <span class="o">&gt;</span> <span class="n">perms</span><span class="p">.</span><span class="n">txt</span>
+</code></pre></div></div>
+
+<h3 id="google-analytics"><strong>Google analytics</strong></h3>
+
+<p>We can perform a reverse search and find all the subdomains having the same Google Analytic ID. Hence, it helps us find acquisitions and unique domains.</p>
+
+<blockquote>
+  <p>Most organizations use <a href="https://analytics.google.com/analytics/web/">Google Analytics</a> to track website visitors and for more statistics. Generally, they have the same Google Analytics ID across all subdomains of a root domain</p>
+
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> git clone https://github.com/Josue87/AnalyticsRelationships.git
+ <span class="nb">cd </span>AnalyticsRelationships/Python
+ <span class="nb">sudo </span>pip3 <span class="nb">install</span> <span class="nt">-r</span> requirements.txt
+ python3 analyticsrelationships.py <span class="nt">-u</span> https://www.example.com
+</code></pre></div></div>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>TLS, CSP, CNAME Probing</strong></li>
+  <li class="task-list-item">In order to use HTTPS, the website owner needs to issue an SSL(Secure Socket Layer) certificate.</li>
+  <li class="task-list-item">
+    <p>CSP headers sometimes contain <strong>domains/subdomains</strong> from where the content is usually imported</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  go <span class="nb">install </span>github.com/glebarez/cero@latest
+  <span class="c">#tls</span>
+  cero <span class="k">in</span>.search.yahoo.com | <span class="nb">sed</span> <span class="s1">'s/^*.//'</span> | <span class="nb">grep</span> <span class="nt">-e</span> <span class="s2">"</span><span class="se">\.</span><span class="s2">"</span> | <span class="nb">sort</span> <span class="nt">-u</span>
+  <span class="c">#cls</span>
+  <span class="nb">cat </span>subdomains.txt | httpx <span class="nt">-csp-probe</span> <span class="nt">-status-code</span> <span class="nt">-retries</span> 2 <span class="nt">-no-color</span> | anew csp_probed.txt | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="nt">-f1</span> | unfurl <span class="nt">-u</span> domains | anew <span class="nt">-q</span> csp_subdomains.txt
+  <span class="c"># cname</span>
+  dnsx <span class="nt">-retry</span> 3 <span class="nt">-cname</span> <span class="nt">-l</span> subdomains.txt
+</code></pre></div>    </div>
+    <h3 id="scrapingjssource-code"><strong>Scraping(JS/Source code)</strong></h3>
+  </li>
+</ul>
+
+<p><strong>Workflow</strong></p>
+
+<ol>
+  <li>
+    <p>Web probing subdomains</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nb">cat </span>subdomains.txt | httpx <span class="nt">-random-agent</span> <span class="nt">-retries</span> 2 <span class="nt">-no-color</span> <span class="nt">-o</span> probed_tmp_scrap.txt
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Now, that we have web probed URLs, we can send them for crawling to gospider</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> gospider <span class="nt">-S</span> probed_tmp_scrap.txt <span class="nt">--js</span> <span class="nt">-t</span> 50 <span class="nt">-d</span> 3 <span class="nt">--sitemap</span> <span class="nt">--robots</span> <span class="nt">-w</span> <span class="nt">-r</span> <span class="o">&gt;</span> gospider.txt
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Cleaning the output</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'/^.\{2048\}./d'</span> gospider.txt
+ or 
+ <span class="nb">cat </span>gospider.txt | <span class="nb">grep</span> <span class="nt">-Eo</span> <span class="s1">'https?://[^ ]+'</span> | <span class="nb">sed</span> <span class="s1">'s/]$//'</span> | unfurl <span class="nt">-u</span> domains | <span class="nb">grep</span> <span class="s2">".example.com$"</span> | <span class="nb">sort</span> <span class="nt">-u</span> scrap_subs.txt
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Resolving our target subdomains</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> puredns resolve scrap_subs.txt <span class="nt">-w</span> scrap_subs_resolved.txt <span class="nt">-r</span> resolvers.txt
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="finish-work">Finish Work</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>subs/
+<span class="nb">cat </span>horizontal/ptr_records.txt | <span class="nb">sort</span> <span class="nt">-u</span> <span class="o">&gt;</span> horizontal.txt
+<span class="nb">cat </span>Vertical/Active/<span class="k">*</span> | <span class="nb">sort</span> <span class="nt">-u</span> <span class="o">&gt;</span> active.txt
+<span class="nb">cat </span>Vertical/Pssive/<span class="k">*</span> | <span class="nb">sort</span> <span class="nt">-u</span> <span class="o">&gt;</span> passive.txt
+<span class="nb">cat</span> <span class="k">*</span> | <span class="nb">sort</span> <span class="nt">-u</span> <span class="o">&gt;</span> all_subs.txt
+<span class="nb">cat </span>all_subs.txt | httpx <span class="nt">-random-agent</span> <span class="nt">-retries</span> 2 <span class="nt">-no-color</span> <span class="nt">-o</span> filtered_subs.txt
+</code></pre></div></div>
