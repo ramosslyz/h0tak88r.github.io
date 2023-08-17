@@ -7,6 +7,8 @@ tags: [2FA,Web Penetration Testing]
 pin: true
 ---
 # Introduction
+**In the name of Allah, most gracious and most merciful**
+
 Greetings, fellow security enthusiasts!
 
 Imagine a lock that requires not just one, but two secret keys to open. That's Multi-Factor Authentication (2FA) in a nutshell – an extra layer of defense that's become a game-changer in keeping digital front doors locked against cyber intruders.

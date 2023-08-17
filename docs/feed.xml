@@ -4,7 +4,7 @@
   <id>http://localhost:4000/</id>
   <title>Mosaad Sallam</title>
   <subtitle>Penetration Testing Student | Computer Engineering Student @ohi | Bug Hunter </subtitle>
-  <updated>2023-08-17T02:25:37+03:00</updated>
+  <updated>2023-08-17T11:16:17+03:00</updated>
   <author>
     <name>Mosaad Sallam</name>
     <uri>http://localhost:4000/</uri>
@@ -47,11 +47,13 @@
 
 
       Introduction
+In the name of Allah, most gracious and most merciful
+
 Greetings, fellow security enthusiasts!
 
 Imagine a lock that requires not just one, but two secret keys to open. That’s Multi-Factor Authentication (2FA) in a nutshell – an extra layer of defense that’s become a game-changer in keeping digital front doors locked against cyber intruders.
 
-In this guide, we’re diving into the world of 2FA security. Think of it as a treasure map that ...
+In this guide, we’re diving into the wor...
     </summary>
   
 
