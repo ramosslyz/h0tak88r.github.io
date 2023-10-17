@@ -4,7 +4,7 @@ author: h0tak88r
 date: 2023-06-05
 categories: [Recon]
 tags: [Recon,Subdomain_Enumeration]
-pin: true
+pin: false
 ---
 
 ## What's the need?
