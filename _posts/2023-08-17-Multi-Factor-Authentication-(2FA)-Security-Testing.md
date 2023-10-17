@@ -4,7 +4,7 @@ author: h0tak88r
 date: 2023-08-17
 categories: [Multi-Factor-Authentication]
 tags: [2FA,Web Penetration Testing]
-pin: true
+pin: false
 ---
 # Introduction
 **In the name of Allah, most gracious and most merciful**
