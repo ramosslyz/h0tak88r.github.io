@@ -1,5 +1,5 @@
 ---
-title: Automating-Bug-Bounty-Hunting-using-GitHub-Actions
+title: Automating Bug Bounty Hunting using GitHub Actions
 author: h0tak88r
 date: 2023-10-21
 categories: [Recon]
