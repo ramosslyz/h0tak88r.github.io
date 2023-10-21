@@ -1,4 +1,3 @@
-
 ---
 title: Abnormal Email Change Feature A Gateway to Multiple Bugs
 author: h0tak88r
