@@ -7,6 +7,7 @@ tags: [BugCrowd,VRT,P4,Low]
 pin: false
 ---
 
+>**In the name of Allah, the Most Beneficent, the Most Merciful**
 
 ***Server Security Misconfiguration  Misconfigured DNS  Zone Transfer***
 - [ ] [DNS-ZONE-TRANSFER-CHECKER](https://pentest-tools.com/network-vulnerability-scanning/dns-zone-transfer-check)
