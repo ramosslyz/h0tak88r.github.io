@@ -1,8 +1,8 @@
 ---
-title: Multi-Factor-Authentication-(2FA)-Security-Testing
+title: Multi Factor Authentication (2FA) Security Testing
 author: h0tak88r
 date: 2023-08-17
-categories: [Multi-Factor-Authentication]
+categories: [Methodology]
 tags: [2FA,Web Penetration Testing]
 pin: false
 ---
