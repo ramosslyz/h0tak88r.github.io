@@ -7,26 +7,23 @@ tags: [bugbounty, methodology, checklist]
 pin: True
 ---
 
-> ***[[Recon]]***
+> ***Recon***
 
-- [ ] Quick Recon Using [GitHub-Actions-Workflow](https://github.com/h0tak88r/all_subs_collected/blob/main/.github/workflows/Recon.yml) OR  `recon-automation.sh` script
-- [ ] Nuclei Scan using VPS 
-``` bash
-cat subs/all_subs_filtered.txt | nuclei -t nuclei_templates/Others | notify -bulk -provider discord -pc provider-config.yaml
-cat subs/all_subs_filtered.txt | nuclei -t nuclei_templates/Panels | notify -bulk -provider discord -pc provider-config.yaml
-cat subs/all_subs_filtered.txt | nuclei -t nuclei-templates/ -severity medium,high,critical | notify -bulk -provider discord -pc provider-config.yaml
-```
-- [ ] Fuzzing with ffuf `ffuf -u https://18.157.61.147/FUZZ -w OneListForAll/onelistforallshort.txt -mc 200,403 | notify -bulk -provider discord -pc provider-config.yaml` 
-- [ ] GitHub Dorking [gitdork-Helper](https://vsec7.github.io/) `pass | pwd | secret | key | private | credential | dbpassword | token`
-- [ ] Google [[Dorking]]
-	```python
-	# Google
-	ext:php | ext:asp | ext:aspx | ext:jsp | ext:asp | ext:pl | ext:cfm | ext:py | ext:rb
-	ext:xml | ext:conf | ext:cnf | ext:reg | ext:inf | ext:rdp | ext:cfg | ext:txt |ext:ora | ext:ini | ext:yaml | ext:yml | ext:rdp | ext:ora | ext:bak | ext:log | ext:confi
-	(ext:doc | ext:pdf | ext:xls | ext:txt | ext:ps | ext:rtf | ext:odt | ext:sxw | ext:psw | ext:ppt | ext:pps | ext:xml) intext:confidential salary 
-	```
+- [ ] Automation -> [recon-automation.sh](https://github.com/h0tak88r/Scripts/blob/main/bash%20automation/recon-automation.sh)
+- [ ] Play With Nuclei -> https://blog.projectdiscovery.io/ultimate-nuclei-guide/
+- [ ] Play with FFUF `ffuf -u https://google.com/FUZZ -w Onelistforall/onelistforallshort.txt -mc 200,403`  -> [onelistforall](https://github.com/six2dez/OneListForAll) -> [Seclists](https://github.com/danielmiessler/SecLists) -> [Assetnote](https://www.assetnote.io/)
+- [ ] Do some [[Dorking]] Specially Shodan Dorking -> [Dorking](https://github.com/h0tak88r/Web-App-Security/blob/main/Dorking.md)
+	- [ ] GitHub Dorking [gitdork-Helper](https://vsec7.github.io/) `pass | pwd | secret | key | private | credential | dbpassword | token`
+	- [ ] Google [[Dorking]]
+		```python
+		# Google
+		ext:php | ext:asp | ext:aspx | ext:jsp | ext:asp | ext:pl | ext:cfm | ext:py | ext:rb
+		ext:xml | ext:conf | ext:cnf | ext:reg | ext:inf | ext:rdp | ext:cfg | ext:txt |ext:ora | ext:ini | ext:yaml | ext:yml | ext:rdp | ext:ora | ext:bak | ext:log | ext:confi
+		(ext:doc | ext:pdf | ext:xls | ext:txt | ext:ps | ext:rtf | ext:odt | ext:sxw | ext:psw | ext:ppt | ext:pps | ext:xml) intext:confidential salary 
+		```
+	
+	- [ ] Shodan Dorking `ssl.cert.subject.CN:"<specific_hos_name_>"`
 
-- [ ] Shodan Dorking `ssl.cert.subject.CN:"<specific_hos_name_>"`
 - [ ] Check for API Docs
 	- Swagger -> `/openapi.json`
 	- GraphQL -> https://graphql.org/learn/introspection/ -> https://github.com/prisma-labs/get-graphql-schema 
@@ -41,13 +38,17 @@ cat subs/all_subs_filtered.txt | nuclei -t nuclei-templates/ -severity medium,hi
 >***Low Hanging Fruits***
 
 - [ ] [DNS-ZONE-TRANSFER-CHECKER](https://pentest-tools.com/network-vulnerability-scanning/dns-zone-transfer-check) -> <span style="color:#06ea6c">P4</span>
-- [ ] <span style="color:#f06000">SPF/DMARC</span> Bugs using [mxtoolbox](https://mxtoolbox.com/dmarc.aspx) -> <span style="color:#f06000">P3</span> -> <span style="color:#06ea6c">DMARC</span> only [DMARC Inspector](https://dmarcian.com/dmarc-inspector/)  -> <span style="color:#06ea6c">P4</span>
+- [ ] <span style="color:#ffc000">SPF/DMARC</span> Bugs using [mxtoolbox](https://mxtoolbox.com/dmarc.aspx) -> <span style="color:#ffc000">P3</span> -> <span style="color:#06ea6c">DMARC</span> only [DMARC Inspector](https://dmarcian.com/dmarc-inspector/)  -> <span style="color:#06ea6c">P4</span>
+- [ ] Check for any <span style="color:#06ea6c">confirmations when deleting password</span> 
 - [ ] **<span style="color:#06ea6c">No Rate Limiting on Form</span>** ( Registration, login, Email Triggering, SMS-Triggering )
 - [ ] <span style="color:#06ea6c">Missing Secure or HTTPOnly Cookie Flag > Session Token</span>
 - [ ] Lack of Security Headers -> <span style="color:#06ea6c">Cache-Control for a Sensitive Page</span>
+- [ ] <span style="color:#06ea6c">CAPTCHA  Implementation Vulnerability</span> -> [[CAPTCHA Feature]] 
 - [ ] Web Application Firewall (WAF) Bypass -> <span style="color:#06ea6c">Direct Server Access Original IP</span>
 - [ ] <span style="color:#06ea6c">Broken Link Hijacking</span> via this [Extension](https://addons.mozilla.org/en-US/firefox/addon/find-broken-links/)
-- [ ] <span style="color:#06ea6c">HTML Injection</span> ( Email Triggering, Chats, Reflected Values, forms, meta tags .... )
+- [ ] <span style="color:#06ea6c">HTML Injection</span> ( Email Triggering , forms, meta tags .... )
+- [ ] Failure to Invalidate Session > On <span style="color:#06ea6c">Logout</span> (Client and Server-Side)
+    - In order for this to qualify for the client and server-side variant, you'd need to demonstrate that the session identifiers are not removed from the browser at the time of log out
 - [ ] <span style="color:#06ea6c">No Password Policy</span> -> Password:`123`
 
 > ***[[Registration]] Abuse***
