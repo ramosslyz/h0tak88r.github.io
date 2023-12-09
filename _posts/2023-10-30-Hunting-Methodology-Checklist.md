@@ -9,8 +9,8 @@ pin: True
 
 > ***Recon***
 
-- [ ] Automation -> [recon-automation.sh](https://github.com/h0tak88r/Scripts/blob/main/bash%20automation/recon-automation.sh)
-- [ ] Play With Nuclei -> https://blog.projectdiscovery.io/ultimate-nuclei-guide/
+- [ ] Automation -> [Recon88r-Tool](https://github.com/h0tak88r/Recon88r)
+- [ ] - [ ] Play With Nuclei -> https://blog.projectdiscovery.io/ultimate-nuclei-guide/
 - [ ] Play with FFUF `ffuf -u https://google.com/FUZZ -w Onelistforall/onelistforallshort.txt -mc 200,403`  -> [onelistforall](https://github.com/six2dez/OneListForAll) -> [Seclists](https://github.com/danielmiessler/SecLists) -> [Assetnote](https://www.assetnote.io/)
 - [ ] Do some [[Dorking]] Specially Shodan Dorking -> [Dorking](https://github.com/h0tak88r/Web-App-Security/blob/main/Dorking.md)
 	- [ ] GitHub Dorking [gitdork-Helper](https://vsec7.github.io/) `pass | pwd | secret | key | private | credential | dbpassword | token`
